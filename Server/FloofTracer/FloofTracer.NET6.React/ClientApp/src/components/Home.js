@@ -1,28 +1,90 @@
 import React, { Component } from 'react';
+import { Card, CardBody, CardTitle, Row, Col, Container } from 'reactstrap';
 import { AddEntry } from './AddEntry';
+import { FoodList } from './FoodList';
+import Moment from 'moment';
 
 export class Home extends Component {
   static displayName = Home.name;
 
+  constructor(props) {
+    super(props);
+    this.state = { pets: [], date: new Date() };
+    this.handleUpdate = this.handleUpdate.bind(this);
+    this.updateFoodList = this.updateFoodList.bind(this);
+  }
+
+  handleUpdate() {
+    this.fetchConfiguration()
+    this.updateFoodList()
+  }
+
+  updateFoodList() {
+    console.log("update food list from home");
+  }
+
+  componentDidMount() {
+    this.fetchConfiguration()
+  }
+
+  async fetchConfiguration() {
+    console.log("fetch pet list for home component.");
+    const response = await fetch('api/Pets');
+    if (response.status !== 200) {
+      console.log(response);
+      this.setState({ pets: [] });
+      return;
+    }
+    const data = await response.json();
+    var petList = data.map(pet => ({ name: pet.name, id: pet.id, selected: false }));
+    console.log("Pet list: ", petList);
+    this.setState({ pets: petList });
+    this.updateFoodList();
+  }
+
+  isToday(someDate) {
+    const today = new Date()
+    return someDate.getDate() == today.getDate() &&
+      someDate.getMonth() == today.getMonth() &&
+      someDate.getFullYear() == today.getFullYear()
+  }
+
+  isYesterday(someDate) {
+    const today = new Date() - 86400000;
+    return someDate.getDate() == today.getDate() &&
+      someDate.getMonth() == today.getMonth() &&
+      someDate.getFullYear() == today.getFullYear()
+  }
+
   render () {
     return (
       <div>
-        <h1>Hello, world!</h1>
-        <AddEntry/>
-        <p>Welcome to your new single-page application, built with:</p>
-        <ul>
-          <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-          <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-          <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-        </ul>
-        <p>To help you get started, we have also set up:</p>
-        <ul>
-          <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-          <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-          <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-        </ul>
-        <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
-      </div>
+        <Card body
+              inverse
+              style={{
+                backgroundColor: '#333',
+                borderColor: '#333'
+              }}>
+          <CardBody>
+            <CardTitle tag="h5">F&uuml;tterung</CardTitle>
+            <AddEntry dataSubmitted={()=>this.handleUpdate()} />
+          </CardBody>
+        </Card>
+        <Card>
+          <CardBody>
+            <CardTitle tag="h5">{this.isToday(this.state.date) ? "Heute" : (this.isYesterday(this.state.date) ? "Gestern" : Moment.Utc(this.state.date).format("DD.MM.YYYY"))}</CardTitle>
+            <Container>
+              <Row>
+                {this.state.pets.map((pet, index) => (
+                  <Col key={index}>
+                    <FoodList date={this.state.date} petId={pet.id} petName={pet.name} fetchRequest={this.updateFoodList} />
+                  </Col>
+                ))}
+              </Row>
+            </Container>
+          </CardBody>
+          </Card>
+        </div>
     );
   }
 }

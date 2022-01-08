@@ -24,8 +24,12 @@ namespace FloofTracer.NET6.React.Controllers
 
     // GET: api/Food
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<FoodMeasurement>>> GetFoods()
+    public async Task<ActionResult<IEnumerable<FoodMeasurement>>> GetFoods([FromQuery] DateTime? date = null, [FromQuery] int? petId = null)
     {
+      if (date.HasValue && petId.HasValue)
+      {
+        return await _context.Foods.Where(foodMeasurement => foodMeasurement.Timestamp.Date == date.Value.Date && foodMeasurement.PetId == petId).ToListAsync();
+      }
       return await _context.Foods.ToListAsync();
     }
 
