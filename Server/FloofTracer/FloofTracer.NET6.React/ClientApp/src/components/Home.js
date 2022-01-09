@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import { Card, CardBody, CardTitle, Row, Col, Container } from 'reactstrap';
+import { Card, Row, Col } from 'antd';
+
 import { AddEntry } from './AddEntry';
 import { FoodList } from './FoodList';
-import Moment from 'moment';
+
+import "antd/dist/antd.css";
 
 export class Home extends Component {
   static displayName = Home.name;
@@ -44,47 +46,34 @@ export class Home extends Component {
 
   isToday(someDate) {
     const today = new Date()
-    return someDate.getDate() == today.getDate() &&
-      someDate.getMonth() == today.getMonth() &&
-      someDate.getFullYear() == today.getFullYear()
+    return someDate.getDate() === today.getDate() &&
+      someDate.getMonth() === today.getMonth() &&
+      someDate.getFullYear() === today.getFullYear()
   }
 
   isYesterday(someDate) {
     const today = new Date() - 86400000;
-    return someDate.getDate() == today.getDate() &&
-      someDate.getMonth() == today.getMonth() &&
-      someDate.getFullYear() == today.getFullYear()
+    return someDate.getDate() === today.getDate() &&
+      someDate.getMonth() === today.getMonth() &&
+      someDate.getFullYear() === today.getFullYear()
   }
 
   render () {
     return (
       <div>
-        <Card body
-              inverse
-              style={{
-                backgroundColor: '#333',
-                borderColor: '#333'
-              }}>
-          <CardBody>
-            <CardTitle tag="h5">F&uuml;tterung</CardTitle>
+        <Card size="small" title="F&uuml;tterung">
             <AddEntry dataSubmitted={()=>this.handleUpdate()} />
-          </CardBody>
         </Card>
-        <Card>
-          <CardBody>
-            <CardTitle tag="h5">{this.isToday(this.state.date) ? "Heute" : (this.isYesterday(this.state.date) ? "Gestern" : Moment.Utc(this.state.date).format("DD.MM.YYYY"))}</CardTitle>
-            <Container>
-              <Row>
-                {this.state.pets.map((pet, index) => (
-                  <Col key={index}>
-                    <FoodList date={this.state.date} petId={pet.id} petName={pet.name} fetchRequest={this.updateFoodList} />
-                  </Col>
-                ))}
-              </Row>
-            </Container>
-          </CardBody>
-          </Card>
-        </div>
+        <Card size="small" title={this.isToday(this.state.date) ? " Heute" : (this.isYesterday(this.state.date) ? "Gestern" : 'Moment.Utc(this.state.date).format("DD.MM.YYYY")')}>
+          <Row>
+            {this.state.pets.map((pet, index) => (
+              <Col key={index}>
+                <FoodList date={this.state.date} petId={pet.id} petName={pet.name} fetchRequest={this.updateFoodList} />
+              </Col>
+            ))}
+          </Row>
+        </Card>
+      </div>
     );
   }
 }

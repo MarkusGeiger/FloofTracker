@@ -1,7 +1,13 @@
 ﻿import React, { Component } from "react";
-import { Card, CardBody, CardTitle, ListGroup, ListGroupItem } from "reactstrap";
-import moment from "moment-timezone";
-//import tz from "moment-timezone";
+import { Alert, List } from "antd";
+import dayjs from 'dayjs';
+
+import "antd/dist/antd.css";
+
+var utc = require('dayjs/plugin/utc')
+var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 export class FoodList extends Component {
   static displayName = FoodList.name;
@@ -39,21 +45,17 @@ export class FoodList extends Component {
     const currentWeight = this.state.foodList.reduce((pv, cv) => ({ value: pv.value + cv.value }), ({ value: 0 }));
     console.log("render ", this.state.foodList, "currentWeight", currentWeight);
     return (
-      <Card>
-        <CardBody>
-          <CardTitle tag="h5">{this.props.petName}</CardTitle>
-          <ListGroup>
-            {this.state.foodList.map((c, index) => (
-              <ListGroupItem key={index}>
-                <strong>{moment.utc(c.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {c.value}{c.unit}
-              </ListGroupItem>
-            ))}
-          </ListGroup>
-          <div className="p-3 bg-primary my-2 rounded text-light">
-            {currentWeight.value}g / ~225g
-          </div>
-        </CardBody>
-      </Card>
+      <>
+        <List size="small"
+              header={this.props.petName}
+              bordered
+              dataSource={this.state.foodList}
+              renderItem={(item) => (
+                <List.Item>
+                  <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit}
+                </List.Item>)}/>
+        <Alert type="info" message={currentWeight.value + "g / ~225g"}/>
+      </>
     );
   }
 }
