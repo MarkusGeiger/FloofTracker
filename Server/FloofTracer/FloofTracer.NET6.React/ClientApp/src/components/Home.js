@@ -1,10 +1,24 @@
 import React, { Component } from 'react';
-import { Card, Row, Col } from 'antd';
+import { Card, Row, Col, Space, Button } from 'antd';
+import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
+import dayjs, { Dayjs } from 'dayjs';
 
 import { AddEntry } from './AddEntry';
 import { FoodList } from './FoodList';
 
 import "antd/dist/antd.css";
+
+var utc = require('dayjs/plugin/utc')
+dayjs.extend(utc);
+
+var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+dayjs.extend(timezone);
+
+var isToday = require('dayjs/plugin/isToday');
+dayjs.extend(isToday);
+
+var isYesterday = require('dayjs/plugin/isYesterday');
+dayjs.extend(isYesterday);
 
 export class Home extends Component {
   static displayName = Home.name;
@@ -30,16 +44,33 @@ export class Home extends Component {
   }
 
   async fetchConfiguration() {
-    console.log("fetch pet list for home component.");
-    const response = await fetch('api/Pets');
-    if (response.status !== 200) {
-      console.log(response);
-      this.setState({ pets: [] });
-      return;
+    let petList = [];
+    try {
+
+      console.log("fetch pet list for home component.");
+
+      const petResponse = await fetch('api/Pets');
+      const petData = await petResponse.json();
+
+      petList = petData.map(pet => ({ name: pet.name, id: pet.id, selected: false, weight: 0 }));
+      console.log("Pet list: ", petList);
+
+      const weightResponse = await fetch('api/Weight');
+      const weightData = await weightResponse.json();
+      console.log("weight list: ", weightData);
+
+      for (let weightIndex in weightData) {
+        const weight = weightData[weightIndex];
+        const petArrayItemIndex = petList.findIndex(pet => pet.id === weight.petId);
+        console.log("Weight: ", weight, "ArrayIndex for PetId: ", petArrayItemIndex);
+        petList[petArrayItemIndex].weight = weight.value;
+      }
+      console.log("Pet list updated: ", petList);
     }
-    const data = await response.json();
-    var petList = data.map(pet => ({ name: pet.name, id: pet.id, selected: false }));
-    console.log("Pet list: ", petList);
+    catch (e) {
+      console.log("Failed fetching data in home: ", e);
+    }
+
     this.setState({ pets: petList });
     this.updateFoodList();
   }
@@ -58,21 +89,53 @@ export class Home extends Component {
       someDate.getFullYear() === today.getFullYear()
   }
 
-  render () {
+  render() {
+    const columnCount = Math.floor(24.0 / this.state.pets.length);
+    console.log("Number of pets: ", this.state.pets.length, "Column count: ", columnCount);
+    console.log("CurrentDate: ", this.state.date);
     return (
       <div>
-        <Card size="small" title="F&uuml;tterung">
-            <AddEntry dataSubmitted={()=>this.handleUpdate()} />
-        </Card>
-        <Card size="small" title={this.isToday(this.state.date) ? " Heute" : (this.isYesterday(this.state.date) ? "Gestern" : 'Moment.Utc(this.state.date).format("DD.MM.YYYY")')}>
-          <Row>
-            {this.state.pets.map((pet, index) => (
-              <Col key={index}>
-                <FoodList date={this.state.date} petId={pet.id} petName={pet.name} fetchRequest={this.updateFoodList} />
+        <Space direction="vertical" style={{width: "100%"}}>
+          <Card size="small" title="F&uuml;tterung">
+              <AddEntry dataSubmitted={()=>this.handleUpdate()} />
+          </Card>
+          <Card
+            size="small"
+            title={dayjs(this.state.date).isToday() ? " Heute" : (dayjs(this.state.date).isYesterday() ? "Gestern" : dayjs.utc(this.state.date).tz("Europe/Berlin").format("DD.MM.YYYY"))}
+            //actions={[
+            //  <SettingOutlined key="setting" />,
+            //  <EditOutlined key="edit" />,
+            //  <EllipsisOutlined key="ellipsis" />]}
+          >
+            <Row gutter={8}>
+              {this.state.pets.map((pet, index) => (
+                <Col key={index} span={Math.floor(24.0 / this.state.pets.length)}>
+                  <FoodList date={this.state.date} pet={pet} ref={ref => this.foodListRef = ref}/>
               </Col>
             ))}
-          </Row>
-        </Card>
+            </Row>
+            <Row justify="space-between">
+              <Col>
+                <Button icon={<DoubleLeftOutlined />} size="small" onClick={
+                  () => {
+                    const newDate = dayjs(this.state.date).subtract(1, 'day');
+                    this.setState({ date: newDate });
+                  }
+                } />
+              </Col>
+              {dayjs.utc(this.state.date).tz("Europe/Berlin").isToday() ? "" : (
+                <Col>
+                  {<Button icon={<DoubleRightOutlined />} size="small" onClick={
+                    () => {
+                      const newDate = dayjs(this.state.date).add(1, 'day');
+                      this.setState({ date: newDate });
+                    }
+                  } />}
+                </Col>)
+              }
+            </Row>
+          </Card>
+        </Space>
       </div>
     );
   }

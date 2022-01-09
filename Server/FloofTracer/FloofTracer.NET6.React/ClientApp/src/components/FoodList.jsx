@@ -1,11 +1,17 @@
 ﻿import React, { Component } from "react";
-import { Alert, List } from "antd";
+import { Alert, Button, List, Modal } from "antd";
+import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 
 import "antd/dist/antd.css";
 
+const { confirm } = Modal;
+
 var utc = require('dayjs/plugin/utc')
 var timezone = require('dayjs/plugin/timezone') // dependent on utc plugin
+var isToday = require('dayjs/plugin/isToday')
+
+dayjs.extend(isToday)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
@@ -14,17 +20,20 @@ export class FoodList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { currentDay: props.date, foodList: [] };
+    this.state = { currentDay: props.date, foodList: [], deleteModalVisible: false, deleteModalLoading: false };
+    this.deleteButtonClick = this.deleteButtonClick.bind(this);
   }
 
   componentDidMount() {
+    console.log("FoodList initial mount.", this.state);
     this.fetchRequest();
   }
 
-  async fetchRequest() {
+  async fetchRequest(newDate = null) {
+    if (newDate === null) newDate = this.state.currentDay;
     console.log("fetch data for food list component");
-    fetch(
-      `api/Food?date=${this.state.currentDay.toISOString()}&petId=${this.props.petId}`,
+    return fetch(
+      `api/Food?date=${newDate.toISOString()}&petId=${this.props.pet.id}`,
       {
         method: "GET",
         headers: {
@@ -41,20 +50,58 @@ export class FoodList extends Component {
     .catch(error => console.log(error));
   }
 
+  modalDeleteConfirmedMethod(feedingData) {
+      console.log("DeleteButton OK Clicked: ", this, feedingData);
+      return fetch('api/Food/' + feedingData.id, { method: "DELETE" }).then(() => this.fetchRequest());
+  }
+
+  deleteButtonClick(feedingData) {
+    console.log("Event data to be deleted: ", feedingData)
+    
+    confirm({
+      title: 'Fütterung löschen?',
+      icon: <ExclamationCircleOutlined />,
+      visible: this.state.visible,
+      content: "Fütterung für " + this.props.pet.name + " um " + dayjs.utc(feedingData.timestamp).tz("Europe/Berlin").format("HH:mm") + " mit " + feedingData.value + feedingData.unit,
+      okText: 'Ja',
+      okType: 'danger',
+      cancelText: 'Nein',
+      onOk: () => {
+        this.modalDeleteConfirmedMethod(feedingData)
+      },
+      onCancel() { },
+    });
+  }
+
   render() {
-    const currentWeight = this.state.foodList.reduce((pv, cv) => ({ value: pv.value + cv.value }), ({ value: 0 }));
-    console.log("render ", this.state.foodList, "currentWeight", currentWeight);
+    const currentSum = this.state.foodList.reduce((pv, cv) => ({ value: pv.value + cv.value }), ({ value: 0 }));
+    const targetWeight = this.props.pet.weight * 0.05;
+    let alertType = "info";
+    if (Math.abs(currentSum.value - targetWeight) < 10) {
+      // target weight nearly reached
+      alertType = "success";
+    }
+    else if (currentSum.value < targetWeight) {
+      alertType = "warning";
+    }
+    else if (currentSum.value > targetWeight) {
+      alertType = "error";
+    }
+    console.log("render foodlist", this.state.foodList, "currentWeight", currentSum, "Alerttype: ", alertType, "IsToday(" + dayjs(this.state.currentDay).format("YYYY-MM-DD") + "): ", dayjs(this.state.currentDay).isToday());
     return (
       <>
         <List size="small"
-              header={this.props.petName}
-              bordered
-              dataSource={this.state.foodList}
-              renderItem={(item) => (
-                <List.Item>
-                  <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit}
-                </List.Item>)}/>
-        <Alert type="info" message={currentWeight.value + "g / ~225g"}/>
+          header={<h5>{this.props.pet.name}</h5>}
+          bordered
+          dataSource={this.state.foodList}
+          renderItem={(item) => (
+            <List.Item actions={dayjs(item.timestamp).isToday() ? [<Button size="small" shape="circle" icon={<DeleteOutlined />} danger onClick={()=>this.deleteButtonClick(item)} />] : []}>
+              <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit}
+            </List.Item>)}/>
+        <Alert
+          type={alertType}
+          message={currentSum.value + "g / ~" + targetWeight + "g" + (targetWeight > currentSum.value ? " (" + (targetWeight - currentSum.value) + "g übrig)" : "")}
+          style={{ marginTop: "8px" }} />
       </>
     );
   }
