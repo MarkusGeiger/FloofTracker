@@ -21,9 +21,24 @@ try
 
   builder.Host.UseNLog();
 
+  //parse database URL. Format is postgres://<username>:<password>@<host>/<dbname>
+
+  var uri = new Uri(Environment.GetEnvironmentVariable("DATABASE_URL"));
+  var username = uri.UserInfo.Split(':')[0];
+  var password = uri.UserInfo.Split(':')[1];
+  var connectionString =
+  "Host=" + uri.Host +
+  "; Database=" + uri.AbsolutePath.Substring(1) +
+  "; Username=" + username +
+  "; Password=" + password +
+  "; Port=" + uri.Port +
+  "; SSL Mode=Require; Trust Server Certificate=true;";
+  logger.Info(connectionString);
   builder.Services.AddDbContext<ApplicationDBContext>(options =>
   {
-    options.UseSqlite("Data Source=Application.db");
+    //options.UseSqlite("Data Source=Application.db");
+    //options.UseNpgsql("Host=raspberrypi;Database=FloofTracker;Username=postgres;Password=123456");
+    options.UseNpgsql(connectionString);
   });
 
   var app = builder.Build();
