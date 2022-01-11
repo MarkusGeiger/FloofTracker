@@ -1,21 +1,31 @@
-# Dockerfile
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+#See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
+EXPOSE 80
+RUN apt-get update
+RUN apt-get install -y curl
+RUN apt-get install -y libpng-dev libjpeg-dev curl libxi6 build-essential libgl1-mesa-glx
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
 
-# Copy csproj and restore as distinct layers
-COPY *.csproj ./
-RUN dotnet restore
-
-# Copy everything else and build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+RUN apt-get update
+RUN apt-get install -y curl
+RUN apt-get install -y libpng-dev libjpeg-dev curl libxi6 build-essential libgl1-mesa-glx
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
+RUN apt-get install -y nodejs
+WORKDIR /src
+COPY ["FloofTracer.NET6.React/FloofTracer.NET6.React.csproj", "FloofTracer.NET6.React/"]
+RUN dotnet restore "FloofTracer.NET6.React/FloofTracer.NET6.React.csproj"
 COPY . .
-RUN dotnet publish -c Release -o out
+WORKDIR "/src/FloofTracer.NET6.React"
+RUN dotnet build "FloofTracer.NET6.React.csproj" -c Release -o /app/build
 
-# Build runtime image
-FROM mcr.microsoft.com/dotnet/aspnet:6.0
+FROM build AS publish
+RUN dotnet publish "FloofTracer.NET6.React.csproj" -c Release -o /app/publish
+
+FROM base AS final
 WORKDIR /app
-COPY --from=build-env /app/out .
-
-# Run the app on container startup
-# Use your project name for the second parameter
-# e.g. MyProject.dll
-ENTRYPOINT [ "dotnet", "HerokuApp.dll" ]
+COPY --from=publish /app/publish .
+ENTRYPOINT ["dotnet", "FloofTracer.NET6.React.dll"]

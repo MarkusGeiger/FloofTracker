@@ -22,16 +22,17 @@ RUN apt-get install -y libpng-dev libjpeg-dev curl libxi6 build-essential libgl1
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
 WORKDIR /src
-COPY ["Server/FloofTracer/FloofTracer.NET6.React/ReactSPA.csproj", "Server/FloofTracer/FloofTracer.NET6.React/"]
-RUN dotnet restore "Server/FloofTracer/FloofTracer.NET6.React/FloofTracer.NET6.csproj"
+COPY ["Server/FloofTracer/FloofTracer.NET6.React/FloofTracer.NET6.React.csproj", "Server/FloofTracer/FloofTracer.NET6.React/"]
+RUN dotnet restore "Server/FloofTracer/FloofTracer.NET6.React/FloofTracer.NET6.React.csproj"
 COPY . .
 WORKDIR "/src/Server/FloofTracer/FloofTracer.NET6.React"
-RUN dotnet build "FloofTracer.NET6.csproj" -c Release -o /app/build
+RUN dotnet build "FloofTracer.NET6.React.csproj" -c Release -o /app/build
 
 FROM build AS publish
-RUN dotnet publish "FloofTracer.NET6.csproj" -c Release -o /app/publish
+RUN dotnet publish "FloofTracer.NET6.React.csproj" -c Release -o /app/publish
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "FloofTracer.NET6.dll"]
+#ENTRYPOINT ["dotnet", "FloofTracer.NET6.React.dll"]
+CMD ASPNETCORE_URLS=http://*:$PORT dotnet FloofTracer.NET6.React.dll
