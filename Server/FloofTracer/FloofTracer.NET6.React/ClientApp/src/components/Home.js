@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Card, Row, Col, Space, Button } from 'antd';
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 
 import { AddEntry } from './AddEntry';
 import { FoodList } from './FoodList';
@@ -25,7 +25,7 @@ export class Home extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { pets: [], date: new Date() };
+    this.state = { pets: [], date: dayjs(), requestCounter: 1 };
     this.handleUpdate = this.handleUpdate.bind(this);
     this.updateFoodList = this.updateFoodList.bind(this);
   }
@@ -37,6 +37,7 @@ export class Home extends Component {
 
   updateFoodList() {
     console.log("update food list from home");
+    this.setState({ requestCounter: parseInt(this.state.requestCounter) + 1 });
   }
 
   componentDidMount() {
@@ -101,7 +102,7 @@ export class Home extends Component {
           </Card>
           <Card
             size="small"
-            title={dayjs(this.state.date).isToday() ? " Heute" : (dayjs(this.state.date).isYesterday() ? "Gestern" : dayjs.utc(this.state.date).tz("Europe/Berlin").format("DD.MM.YYYY"))}
+            title={this.state.date.isToday() ? " Heute" : (this.state.date.isYesterday() ? "Gestern" : this.state.date.utc().tz("Europe/Berlin").format("DD.MM.YYYY"))}
             //actions={[
             //  <SettingOutlined key="setting" />,
             //  <EditOutlined key="edit" />,
@@ -110,7 +111,7 @@ export class Home extends Component {
             <Row gutter={8}>
               {this.state.pets.map((pet, index) => (
                 <Col key={index} span={Math.floor(24.0 / this.state.pets.length)}>
-                  <FoodList date={this.state.date} pet={pet} ref={ref => this.foodListRef = ref}/>
+                  <FoodList date={this.state.date} requestCounter={this.state.requestCounter} pet={pet} ref={ref => this.foodListRef = ref} />
               </Col>
             ))}
             </Row>

@@ -6,7 +6,9 @@ import {
   Checkbox,
   Row,
   Col,
+  TimePicker,
 } from 'antd';
+import dayjs from 'dayjs';
 
 import "antd/dist/antd.css";
 
@@ -15,11 +17,12 @@ export class AddEntry extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { value: 40, pets: [], submitDisabled: false };
+    this.state = { value: 40, pets: [], submitDisabled: false, time: dayjs() };
 
     this.handleAmountChange = this.handleAmountChange.bind(this);
     this.handleCatChange = this.handleCatChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleTimeChange = this.handleTimeChange.bind(this);
   }
 
   componentDidMount() {
@@ -41,7 +44,7 @@ export class AddEntry extends Component {
   }
 
   async postFood(assignedPet) {
-    const bodyContent = JSON.stringify({ value: this.state.value, petId: assignedPet.id, unit: 'g' });
+    const bodyContent = JSON.stringify({ timestamp: this.state.time.utc().toISOString(), value: this.state.value, petId: assignedPet.id, unit: 'g' });
     console.log("Requesting body: ", bodyContent);
     const response = await fetch('api/Food', {
       method: 'POST',
@@ -85,6 +88,11 @@ export class AddEntry extends Component {
     this.props.dataSubmitted();
   }
 
+  handleTimeChange(time) {
+    console.log("time changed: ", time);
+    this.setState({ time: time });
+  }
+
   render() {
     return (
       <Row type="flex" justify="center" >
@@ -92,7 +100,10 @@ export class AddEntry extends Component {
           <Form onFinish={this.handleSubmit}
                 labelCol={{ span: 8 }}
                 wrapperCol={{ span: 16 }}
-                size="small">
+            size="small">
+            <Form.Item label="Uhrzeit">
+              <TimePicker value={this.state.time} onChange={this.handleTimeChange}/>
+            </Form.Item>
             <Form.Item label="Menge">
               <InputNumber addonAfter="g" defaultValue={this.state.value} min={1} max={400} onChange={this.handleAmountChange} />
             </Form.Item>

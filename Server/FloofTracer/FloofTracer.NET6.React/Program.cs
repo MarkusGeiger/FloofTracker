@@ -2,6 +2,7 @@ using FloofTracer.NET6.React;
 using Microsoft.EntityFrameworkCore;
 using NLog;
 using NLog.Web;
+using System.Diagnostics;
 
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("init main");
@@ -22,8 +23,33 @@ try
   builder.Host.UseNLog();
 
   //parse database URL. Format is postgres://<username>:<password>@<host>/<dbname>
+  var envVar = Environment.GetEnvironmentVariable("DATABASE_URL");
+  if (string.IsNullOrWhiteSpace(envVar))
+  {
+    if (builder.Environment.IsDevelopment())
+    {
+      var cmd = new Process();
+      cmd.StartInfo.FileName = "cmd.exe";
+      cmd.StartInfo.RedirectStandardInput = true;
+      cmd.StartInfo.RedirectStandardOutput = true;
+      cmd.StartInfo.CreateNoWindow = true;
+      cmd.StartInfo.UseShellExecute = false;
+      cmd.Start();
 
-  var uri = new Uri(Environment.GetEnvironmentVariable("DATABASE_URL"));
+      cmd.StandardInput.WriteLine("heroku config:get DATABASE_URL -a floof-tracker");
+      cmd.StandardInput.Flush();
+      cmd.StandardInput.Close();
+      cmd.WaitForExit();
+      envVar = cmd.StandardOutput.ReadToEnd();
+      logger.Log(NLog.LogLevel.Info, $"ConnectionString: {envVar}");
+    }
+    else
+    {
+      throw new ArgumentNullException("DATABASE_URL",
+        "Environment variable 'DATABASE_URL' is missing. Please set variable according to 'heroku config:get DATABASE_URL -a floof-tracker' output.");
+    }
+  }
+  var uri = new Uri(envVar);
   var username = uri.UserInfo.Split(':')[0];
   var password = uri.UserInfo.Split(':')[1];
   var connectionString =
