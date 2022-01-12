@@ -1,17 +1,19 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
+import { Router } from 'react-router-dom';
 import App from './App';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 import reportWebVitals from './reportWebVitals';
+import configureHistory from './components/ConfigureHistory';
 
 const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
 const rootElement = document.getElementById('root');
-
+const history = configureHistory();
+//<a href="https://www.freepik.com/vectors/background">Background vector created by winkimages - www.freepik.com</a>
 ReactDOM.render(
-  <BrowserRouter basename={baseUrl}>
+  <Router history={history} basename={baseUrl}>
     <App />
-  </BrowserRouter>,
+  </Router>,
   rootElement);
 
 // If you want your app to work offline and load faster, you can change

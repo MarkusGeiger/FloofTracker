@@ -10,8 +10,6 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 
-import "antd/dist/antd.css";
-
 export class AddEntry extends Component {
   static displayName = AddEntry.name;
 

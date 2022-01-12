@@ -5,8 +5,6 @@ import dayjs from 'dayjs';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
-import "antd/dist/antd.css";
-
 const { confirm } = Modal;
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 

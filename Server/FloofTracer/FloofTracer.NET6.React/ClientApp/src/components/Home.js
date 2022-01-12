@@ -6,8 +6,6 @@ import dayjs from 'dayjs';
 import { AddEntry } from './AddEntry';
 import { FoodList } from './FoodList';
 
-import "antd/dist/antd.css";
-
 var utc = require('dayjs/plugin/utc')
 dayjs.extend(utc);
 
