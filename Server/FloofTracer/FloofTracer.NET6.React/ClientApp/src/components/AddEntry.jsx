@@ -93,36 +93,35 @@ export class AddEntry extends Component {
 
   render() {
     return (
-      <Row type="flex" justify="center" >
-        <Col>
-          <Form onFinish={this.handleSubmit}
-                labelCol={{ span: 8 }}
-                wrapperCol={{ span: 16 }}
-            size="small">
-            <Form.Item label="Uhrzeit">
-              <TimePicker value={this.state.time} onChange={this.handleTimeChange}/>
-            </Form.Item>
-            <Form.Item label="Menge">
-              <InputNumber addonAfter="g" defaultValue={this.state.value} min={1} max={400} onChange={this.handleAmountChange} />
-            </Form.Item>
-            <Form.Item name="checkbox-group" label="Katzi">
-                <Row>
-                  {this.state.pets.map((pet, index) => (
-                    <Col key={index}>
-                      <Checkbox checked={pet.selected} onChange={(e) => this.handleCatChange(e, pet.name)}>
-                        {pet.name}
-                      </Checkbox>
-                    </Col>))}
-                </Row>
-            </Form.Item>
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-              <Button type="primary" htmlType="submit" disabled={this.state.submitDisabled}>
-                Hinzufügen
-              </Button>
-            </Form.Item>
-          </Form>
-        </Col>
-      </Row>
+      <div style={{ width: "60%", margin: "0 auto" }} id="entrydiv">
+        <Form onFinish={this.handleSubmit}
+              labelCol={{ span: 8 }}
+          wrapperCol={{ span: 16 }}
+          id="entryform"
+          size="small">
+          <Form.Item label="Uhrzeit">
+            <TimePicker value={this.state.time} onChange={this.handleTimeChange}/>
+          </Form.Item>
+          <Form.Item label="Menge">
+            <InputNumber addonAfter="g" defaultValue={this.state.value} min={1} max={400} onChange={this.handleAmountChange} />
+          </Form.Item>
+          <Form.Item name="checkbox-group" label="Katzi">
+              <Row>
+                {this.state.pets.map((pet, index) => (
+                  <Col key={index}>
+                    <Checkbox checked={pet.selected} onChange={(e) => this.handleCatChange(e, pet.name)}>
+                      {pet.name}
+                    </Checkbox>
+                  </Col>))}
+              </Row>
+          </Form.Item>
+          <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+            <Button type="primary" htmlType="submit" disabled={this.state.submitDisabled}>
+              Hinzufügen
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
       );
   }
 }

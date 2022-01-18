@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 
 import { AddEntry } from './AddEntry';
 import { FoodList } from './FoodList';
+import { SizeCheck } from './SizeCheck';
 
 var utc = require('dayjs/plugin/utc')
 dayjs.extend(utc);
@@ -93,12 +94,12 @@ export class Home extends Component {
     console.log("Number of pets: ", this.state.pets.length, "Column count: ", columnCount);
     console.log("CurrentDate: ", this.state.date);
     return (
-      <div>
-        <Space direction="vertical" style={{width: "100%"}}>
-          <Card size="small" title="F&uuml;tterung">
-              <AddEntry dataSubmitted={()=>this.handleUpdate()} />
+      <div id="homediv">
+        <Space direction="vertical" style={{ width: "100%" }} id="homespace">
+          <Card size="small" title="F&uuml;tterung" id="entrycard">
+            <AddEntry dataSubmitted={()=>this.handleUpdate()} />
           </Card>
-          <Card
+          <Card id="foodlistcard"
             size="small"
             title={this.state.date.isToday() ? " Heute" : (this.state.date.isYesterday() ? "Gestern" : this.state.date.utc().tz("Europe/Berlin").format("DD.MM.YYYY"))}
             //actions={[
@@ -134,6 +135,7 @@ export class Home extends Component {
               }
             </Row>
           </Card>
+          <SizeCheck/>
         </Space>
       </div>
     );
