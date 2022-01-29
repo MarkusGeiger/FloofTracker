@@ -7,5 +7,6 @@
     public int Value { get; set; }
     public int PetId { get; set; }
     public string Unit { get; set; } = "g";
+    public bool LickyMat { get; set; }
   }
 }

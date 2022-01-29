@@ -1,5 +1,5 @@
 ﻿import React, { Component } from "react";
-import { Alert, Button, List, Modal } from "antd";
+import { Alert, Badge, Button, List, Modal } from "antd";
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { Spin } from 'antd';
@@ -115,7 +115,7 @@ export class FoodList extends Component {
           dataSource={this.state.foodList.sort((a, b) => (dayjs(a.timestamp).isAfter(dayjs(b.timestamp)) ? 1 : -1))}
           renderItem={(item) => (
             <List.Item actions={dayjs(item.timestamp).isToday() ? [<Button size="small" shape="circle" icon={<DeleteOutlined />} danger onClick={() => this.deleteButtonClick(item)} />] : []}>
-              <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit}
+              <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit} {item.lickyMat ? <Badge count={"LM"} style={{ margin: "0 10px" }} /> : ""}
             </List.Item>)} />
         <Alert
           type={alertType}

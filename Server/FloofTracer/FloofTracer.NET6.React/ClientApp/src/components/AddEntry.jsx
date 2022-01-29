@@ -8,8 +8,10 @@ import {
   Col,
   TimePicker,
   Radio,
+  Input,
 } from 'antd';
 import dayjs from 'dayjs';
+import { ClockCircleOutlined } from '@ant-design/icons';
 
 export class AddEntry extends Component {
   static displayName = AddEntry.name;
@@ -22,7 +24,7 @@ export class AddEntry extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { value: 40, pets: [], submitDisabled: false, time: dayjs(), loading: false, preset: 2 };
+    this.state = { value: 40, pets: [], submitDisabled: false, time: dayjs(), loading: false, preset: 2, isLickyMat: false, currentTime: dayjs() };
 
     this.handleAmountChange = this.handleAmountChange.bind(this);
     this.handleCatChange = this.handleCatChange.bind(this);
@@ -33,6 +35,7 @@ export class AddEntry extends Component {
 
   componentDidMount() {
     this.fetchConfiguration()
+    setInterval(() => this.setState({ currentTime: dayjs() }), 30000);
   }
 
   async fetchConfiguration() {
@@ -50,7 +53,7 @@ export class AddEntry extends Component {
   }
 
   async postFood(assignedPet) {
-    const bodyContent = JSON.stringify({ timestamp: this.state.time.utc().toISOString(), value: this.state.value, petId: assignedPet.id, unit: 'g' });
+    const bodyContent = JSON.stringify({ timestamp: this.state.time.utc().toISOString(), value: this.state.value, petId: assignedPet.id, unit: 'g', lickyMat: this.state.isLickyMat });
     console.log("Requesting body: ", bodyContent);
     const response = await fetch('api/Food', {
       method: 'POST',
@@ -81,6 +84,10 @@ export class AddEntry extends Component {
     this.setState({ pets: sourcePets, submitDisabled: !sourcePets.some(pet => pet.selected) });
   }
 
+  handleLickyMatChange(e) {
+    this.setState({ isLickyMat: e.target.checked });
+  }
+
   async handleSubmit(event) {
     console.log('New submission. Amount: ', this.state.value, ', Pets: ', this.state.pets);
     this.setState({ loading: true });
@@ -96,9 +103,9 @@ export class AddEntry extends Component {
     this.props.dataSubmitted();
   }
 
-  handleTimeChange(time) {
-    console.log("time changed: ", time);
-    this.setState({ time: time });
+  handleTimeChange(event) {
+    console.log("time changed: ", event.target.value, "Parsed: ", dayjs(dayjs().format("YYYY-MM-DD") + " " + event.target.value, "YYYY-MM-DD HH:mm"));
+    this.setState({ time: dayjs(dayjs().format("YYYY-MM-DD") + " " + event.target.value, "YYYY-MM-DD HH:mm") });
   }
 
   handleRadioChange(event) {
@@ -123,15 +130,20 @@ export class AddEntry extends Component {
         <Form onFinish={this.handleSubmit}
               labelCol={{ span: 8 }}
           wrapperCol={{ span: 16 }}
-          id="entryform"
-          size="small">
-          <Form.Item label="Uhrzeit">
-            <TimePicker value={this.state.time} onChange={this.handleTimeChange} /><Button style={{ marginLeft: "5px" }} onClick={() => this.setState({time:dayjs()})}>Jetzt</Button>
+          id="entryform">
+          <Form.Item>
+            <Input.Group compact>
+              <Input type="time" style={{ width: "calc(100%-200px)" }}
+                value={this.state.time.format("HH:mm")}
+                onChange={(e) => this.handleTimeChange(e)}
+                prefix={<ClockCircleOutlined />}
+                addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
+            </Input.Group>
           </Form.Item>
-          <Form.Item label="Menge">
+          <Form.Item>
             <InputNumber addonAfter="g" value={this.state.value} defaultValue={this.state.value} min={1} max={400} onChange={this.handleAmountChange} />
           </Form.Item>
-          <Form.Item label="Voreinstellung">
+          <Form.Item>
             <Radio.Group
               options={AddEntry.presetOptions}
               onChange={this.handleRadioChange}
@@ -139,7 +151,7 @@ export class AddEntry extends Component {
               optionType="button"
             />
           </Form.Item>
-          <Form.Item name="checkbox-group" label="Katzi">
+          <Form.Item name="checkbox-group">
               <Row>
                 {this.state.pets.map((pet, index) => (
                   <Col key={index}>
@@ -148,6 +160,11 @@ export class AddEntry extends Component {
                     </Checkbox>
                   </Col>))}
               </Row>
+          </Form.Item>
+          <Form.Item>
+            <Checkbox checked={this.state.isLickyMat} onChange={(e) => this.handleLickyMatChange(e)}>
+              LickyMat
+            </Checkbox>
           </Form.Item>
           <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
             <Button type="primary" htmlType="submit" loading={this.state.loading} disabled={this.state.submitDisabled || this.state.loading}>
