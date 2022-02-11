@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Row, Col, Space, Button, Tabs } from 'antd';
 import { DoubleLeftOutlined, DoubleRightOutlined, EditOutlined, LineChartOutlined, SettingOutlined } from '@ant-design/icons';
-import { StickyContainer, Sticky } from 'react-sticky';
 
 import dayjs from 'dayjs';
 
