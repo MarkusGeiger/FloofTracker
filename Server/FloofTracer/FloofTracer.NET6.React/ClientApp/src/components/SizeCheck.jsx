@@ -1,8 +1,8 @@
-﻿import { DownOutlined, UpOutlined } from "@ant-design/icons";
+import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import { Button, Descriptions } from "antd";
 import { useState } from "react";
 
-export function SizeCheck(props) {
+export function SizeCheck() {
   const [measurements, setMeasurements] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 

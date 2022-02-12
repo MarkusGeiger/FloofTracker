@@ -1,6 +1,6 @@
 import { Card } from "antd";
 
-export const FoodEditor = (props) => {
+export const FoodEditor = () => {
     return (
         <Card size="small" title="Futter">
             Mjamjam<br/>

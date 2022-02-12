@@ -1,4 +1,4 @@
-﻿import { createBrowserHistory, createHashHistory } from 'history'
+import { createBrowserHistory, createHashHistory } from 'history'
 
 //https://ayastreb.me/react-router-in-home-screen-pwa/
 

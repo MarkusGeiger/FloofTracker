@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { HorizontalGridLines, LineSeries, VerticalGridLines, XAxis, XYPlot, YAxis } from "react-vis";
 import '../../node_modules/react-vis/dist/style.css';
 
-export const FoodChart = (props) => {
+export const FoodChart = () => {
 
     const data = [
         {x: dayjs().subtract(0, 'day'), y: 238},

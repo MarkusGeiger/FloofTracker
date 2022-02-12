@@ -1,4 +1,4 @@
-﻿import React, { Component } from 'react';
+import React, { Component } from 'react';
 import {
   Form,
   InputNumber,
@@ -6,7 +6,6 @@ import {
   Checkbox,
   Row,
   Col,
-  TimePicker,
   Radio,
   Input,
 } from 'antd';

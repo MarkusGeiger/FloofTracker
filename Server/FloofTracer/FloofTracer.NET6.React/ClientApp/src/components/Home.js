@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Card, Row, Col, Space, Button, Tabs } from 'antd';
-import { DoubleLeftOutlined, DoubleRightOutlined, EditOutlined, LineChartOutlined, SettingOutlined } from '@ant-design/icons';
+import { DoubleLeftOutlined, DoubleRightOutlined, EditOutlined, LineChartOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
 
@@ -10,6 +10,7 @@ import { SizeCheck } from './SizeCheck';
 import { WeightEditor } from './WeightEditor';
 import { FoodEditor } from './FoodEditor';
 import { FoodChart } from './FoodChart';
+import UserManagement from './UserManagement';
 
 const { TabPane } = Tabs;
 
@@ -155,6 +156,11 @@ export class Home extends Component {
           <TabPane tab={<span style={{marginRight: "5px"}}><LineChartOutlined />Statistiken</span>} key="3">
             <Space direction='vertical' style={{ width: "100%" }}>
               <FoodChart/>
+            </Space>
+          </TabPane>
+          <TabPane tab={<span style={{marginRight: "5px"}}><UserOutlined />Benutzer</span>} key="4">
+            <Space direction='vertical' style={{ width: "100%" }}>
+              <UserManagement/>
             </Space>
           </TabPane>
         </Tabs>

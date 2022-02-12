@@ -1,4 +1,4 @@
-﻿import React, { Component } from "react";
+import React, { Component } from "react";
 import { Alert, Badge, Button, List, Modal } from "antd";
 import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
@@ -56,10 +56,6 @@ export class FoodList extends Component {
   }
 
   componentDidUpdate(prevProps) {
-
-    console.log("current/previous request: ", this.props.requestCounter, prevProps.requestCounter);
-    console.log("current/previous date: ", this.props.date, prevProps.date);
-
     if (this.props.requestCounter !== prevProps.requestCounter) {
       this.setState({ loading: true }, () => { this.fetchFoodListRequest() });
     }
@@ -106,7 +102,7 @@ export class FoodList extends Component {
     else if (currentSum.value > targetWeight) {
       alertType = "error";
     }
-    console.log("render foodlist", this.state.foodList, "currentWeight", currentSum, "Alerttype: ", alertType, "IsToday(" + dayjs(this.state.currentDay).format("YYYY-MM-DD") + "): ", dayjs(this.state.currentDay).isToday());
+    //console.log("render foodlist", this.state.foodList, "currentWeight", currentSum, "Alerttype: ", alertType, "IsToday(" + dayjs(this.state.currentDay).format("YYYY-MM-DD") + "): ", dayjs(this.state.currentDay).isToday());
     return (
       <Spin spinning={this.state.loading} indicator={antIcon}>
         <List size="small"
