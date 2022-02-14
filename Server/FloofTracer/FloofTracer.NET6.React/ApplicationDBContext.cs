@@ -5,9 +5,10 @@ namespace FloofTracer.NET6.React
 {
   public class ApplicationDBContext : DbContext
   {
-    public DbSet<PetEntry> Pets { get; set; }
-    public DbSet<WeightMeasurement> Weights { get; set; }
-    public DbSet<FoodMeasurement> Foods { get; set; }
+    public DbSet<PetEntry> Pets => Set<PetEntry>();
+    public DbSet<WeightMeasurement> Weights => Set<WeightMeasurement>();
+    public DbSet<FoodMeasurement> Foods => Set<FoodMeasurement>();
+    public DbSet<FoodType> FoodTypes => Set<FoodType>();
 
     public ApplicationDBContext(DbContextOptions options) : base(options)
     {

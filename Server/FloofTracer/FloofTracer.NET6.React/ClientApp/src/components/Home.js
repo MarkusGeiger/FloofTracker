@@ -9,8 +9,9 @@ import { FoodList } from './FoodList';
 import { SizeCheck } from './SizeCheck';
 import { WeightEditor } from './WeightEditor';
 import { FoodEditor } from './FoodEditor';
-import { FoodChart } from './FoodChart';
+import { StatisticsCharts } from './StatisticsCharts';
 import UserManagement from './UserManagement';
+import FoodTypeList from './FoodTypeList';
 
 const { TabPane } = Tabs;
 
@@ -151,11 +152,12 @@ export class Home extends Component {
             <Space direction='vertical' style={{ width: "100%" }} >
               <WeightEditor pets={this.state.pets}/>
               <FoodEditor/>
+              <FoodTypeList/>
             </Space>
           </TabPane>
           <TabPane tab={<span style={{marginRight: "5px"}}><LineChartOutlined />Statistiken</span>} key="3">
             <Space direction='vertical' style={{ width: "100%" }}>
-              <FoodChart/>
+              <StatisticsCharts pets={this.state.pets}/>
             </Space>
           </TabPane>
           <TabPane tab={<span style={{marginRight: "5px"}}><UserOutlined />Benutzer</span>} key="4">

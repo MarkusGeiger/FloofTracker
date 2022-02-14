@@ -33,6 +33,13 @@ namespace FloofTracer.NET6.React.Controllers
       return await _context.Foods.ToListAsync();
     }
 
+    [HttpGet("daily")]
+    public async Task<ActionResult<IEnumerable<GroupedFoodItem>>> GetFoodsDaily([FromQuery] int petId)
+    {
+      var foodList = await _context.Foods.Where(foodMeasurement => foodMeasurement.PetId == petId).ToListAsync();
+      return Ok(foodList.GroupBy(food => food.Timestamp.Date).Select(groupItem => new GroupedFoodItem(groupItem.Key, groupItem.ToList(), groupItem.Sum(food => food.Value), petId)));
+    }
+
     // GET: api/Food/5
     [HttpGet("{id}")]
     public async Task<ActionResult<FoodMeasurement>> GetFoodMeasurement(int id)
@@ -111,4 +118,6 @@ namespace FloofTracer.NET6.React.Controllers
       return _context.Foods.Any(e => e.Id == id);
     }
   }
+
+  public record GroupedFoodItem(DateTime Date, List<FoodMeasurement> Weights, int Sum, int? PetId);
 }

@@ -8,7 +8,9 @@ const context =  [
   "/weatherforecast",
   "/api/Pets",
   "/api/Food",
-  "/api/Weight"
+  "/api/Weight",
+  "/api/FoodType",
+  "/api/Food/daily"
 ];
 
 module.exports = function(app) {
