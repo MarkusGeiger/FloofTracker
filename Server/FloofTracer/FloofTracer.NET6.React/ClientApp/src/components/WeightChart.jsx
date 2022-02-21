@@ -7,7 +7,7 @@ export const WeightChart = ({ data /* see data tab */ }) => (
         theme={NivoThemeDark}
         colors={{ scheme: 'dark2' }}
         data={data}
-        margin={{ top: 50, right: 110, bottom: 50, left: 60 }}
+        margin={{ top: 50, right: 30, bottom: 50, left: 60 }}
         xScale={{
             type: 'time',
             format: '%Y-%m-%d',
@@ -18,7 +18,7 @@ export const WeightChart = ({ data /* see data tab */ }) => (
         yScale={{
             type: 'linear',
             stacked: false,
-            min: 0,
+            min: 'auto',
             max: 'auto',
         }}
         axisLeft={{
@@ -36,7 +36,7 @@ export const WeightChart = ({ data /* see data tab */ }) => (
             legend: '',
             legendOffset: -12,
         }}
-        curve='monotoneX'
+        curve='stepAfter'
         enablePointLabel={false}
         pointSize={10}
         pointColor={{ theme: 'background' }}
@@ -49,11 +49,11 @@ export const WeightChart = ({ data /* see data tab */ }) => (
         enableSlices={false}
         legends={[
             {
-                anchor: 'bottom-right',
-                direction: 'column',
+                anchor: 'bottom',
+                direction: 'row',
                 justify: false,
-                translateX: 100,
-                translateY: 0,
+                translateX: 0,
+                translateY: 50,
                 itemsSpacing: 0,
                 itemDirection: 'left-to-right',
                 itemWidth: 80,
