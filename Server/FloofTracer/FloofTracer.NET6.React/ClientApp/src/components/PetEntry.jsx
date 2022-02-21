@@ -2,12 +2,10 @@ import { Divider, InputNumber, Radio, Row } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import { useState } from "react";
 
-
-
 export const PetEntry = ({name}) => {
-    const [value, setValue] = useState(40);
-    const [preset, setPreset] = useState(2);
-    const [isLickyMat, setIsLickyMat] = useState(false);
+    const [value] = useState(40);
+    const [preset] = useState(2);
+    const [isLickyMat] = useState(false);
 
     const presetOptions = [
         { label: "Custom", value: 0 },
@@ -17,15 +15,15 @@ export const PetEntry = ({name}) => {
       ];
 
     const handleRadioChange = event => {
-
+      console.log(event);
     };
 
     const handleAmountChange = amount => {
-
+      console.log(amount);
     };
 
     const handleLickyMatChange = event => {
-
+      console.log(event);
     };
 
     return(
