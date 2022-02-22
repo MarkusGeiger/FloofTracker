@@ -1,48 +1,76 @@
-import { Divider, InputNumber, Radio, Row } from "antd";
+import { Divider, Input, Radio, Row } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-export const PetEntry = ({name}) => {
-    const [value] = useState(40);
-    const [preset] = useState(2);
-    const [isLickyMat] = useState(false);
+export const PetEntry = ({name, onChange}) => {
+    const [value, setValue] = useState(40);
+    const [preset, setPreset] = useState(2);
+    const [isLickyMat, setIsLickyMat] = useState(false);
 
     const presetOptions = [
-        { label: "Custom", value: 0 },
+        // { label: "Custom", value: 0 },
         { label: "1 EL", value: 1, presetFoodValue: 15 },
         { label: "Klein", value: 2, presetFoodValue: 40 },
-        { label: "Groß", value: 3, presetFoodValue: 75 }
+        { label: "Mittel", value: 3, presetFoodValue: 50 },
+        { label: "Groß", value: 4, presetFoodValue: 75 }
       ];
+
+    useEffect(()=>{
+      if(onChange) onChange(name, value, isLickyMat);
+      console.log("useEffect");
+    }, [name, value, isLickyMat, onChange]);
 
     const handleRadioChange = event => {
       console.log(event);
+      const index = event.target.value;
+      const foundEntry = presetOptions.find(option => option.value === event.target.value);
+      setPreset(index);
+      setValue(foundEntry.presetFoodValue);
     };
 
-    const handleAmountChange = amount => {
-      console.log(amount);
+    const handleAmountChange = event => {
+      let amount = event.target.value;
+      console.log("Amount changed: ", amount);
+      amount = Math.min(400, amount);
+      amount = Math.max(1, amount);
+      const foundEntry = presetOptions.find(option => option.presetFoodValue === amount);
+      console.log("AmountChange FoundEntry: ", foundEntry);
+      setValue(amount);
+      setPreset(foundEntry === undefined ? 0 : foundEntry.value);
     };
 
     const handleLickyMatChange = event => {
       console.log(event);
+      setIsLickyMat(event.target.checked);
     };
 
     return(
         <>
-            <Row gutter={[16,  24]} style={{marginBottom: "16px"}}>
+            <Row style={{padding: "8px 0"}}>
                 <Divider >{name}</Divider>
-                <InputNumber addonAfter="g" value={value} defaultValue={value} min={1} max={400} onChange={handleAmountChange} style={{width: "100%"}}/>
+                <Input type="tel"
+                       addonAfter={<span className="ant-input-number-group-addo" style={{padding: "0 11px"}}>g</span>}
+                       value={value} 
+                       defaultValue={value} 
+                       min={1} 
+                       max={400} 
+                       onChange={handleAmountChange}
+                       style={{width: "100%"}}/>
             </Row>
-            <Row gutter={[16,  24]} style={{marginBottom: "16px"}}>
+            <Row style={{padding: "8px 0"}}>
 
                 <Radio.Group
                     options={presetOptions}
                     onChange={handleRadioChange}
                     value={preset}
                     optionType="button"
+                    style={{margin: "0 auto"}}
                 />
             </Row>
-            <Row>
-              <Checkbox checked={isLickyMat} onChange={(e) => handleLickyMatChange(e)}>
+            <Row style={{padding: "8px 0"}}>
+              <Checkbox checked={isLickyMat} 
+                        onChange={(e) => handleLickyMatChange(e)}
+                        style={{margin: "0 auto"}}>
                 LickyMat
               </Checkbox>
             </Row>

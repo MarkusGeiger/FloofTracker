@@ -110,8 +110,8 @@ export class Home extends Component {
               <Card size="small" title="F&uuml;tterung" id="entrycard">
                 <AddEntry dataSubmitted={()=>this.handleUpdate()} />
               </Card>              
-              <Card size="small" title="F&uuml;tterung V2 (inactive)" id="entrycard">
-                <AddEntryV2 />
+              <Card size="small" title="F&uuml;tterung V2 (preview)" id="entrycard">
+                <AddEntryV2 dataSubmitted={()=>this.handleUpdate()} />
               </Card>
               <Card id="foodlistcard"
                 size="small"

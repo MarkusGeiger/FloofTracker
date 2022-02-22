@@ -14,13 +14,11 @@ export class AddEntryV2 extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { value: 40, pets: [], submitDisabled: false, time: dayjs(), loading: false, preset: 2, isLickyMat: false, currentTime: dayjs() };
+    this.state = { pets: [], submitDisabled: false, time: dayjs(), loading: false, currentTime: dayjs()};
 
-    this.handleAmountChange = this.handleAmountChange.bind(this);
-    this.handleCatChange = this.handleCatChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleTimeChange = this.handleTimeChange.bind(this);
-    this.handleRadioChange = this.handleRadioChange.bind(this);
+    this.handlePetChange = this.handlePetChange.bind(this);
   }
 
   componentDidMount() {
@@ -43,7 +41,7 @@ export class AddEntryV2 extends Component {
   }
 
   async postFood(assignedPet) {
-    const bodyContent = JSON.stringify({ timestamp: this.state.time.utc().toISOString(), value: this.state.value, petId: assignedPet.id, unit: 'g', lickyMat: this.state.isLickyMat });
+    const bodyContent = JSON.stringify({ timestamp: this.state.time.utc().toISOString(), value: assignedPet.food, petId: assignedPet.id, unit: 'g', lickyMat: assignedPet.lickyMat });
     console.log("Requesting body: ", bodyContent);
     const response = await fetch('api/Food', {
       method: 'POST',
@@ -62,26 +60,10 @@ export class AddEntryV2 extends Component {
     console.log("response: ", response, "responseData: ", data);
   }
 
-  handleAmountChange(amount) {
-    this.setState({ value: amount, submitDisabled: false, preset: 0 });
-  }
-
-  handleCatChange(event, name) {
-
-    let sourcePets = this.state.pets;
-    sourcePets.find(pet => pet.name === name).selected = event.target.checked;
-
-    this.setState({ pets: sourcePets, submitDisabled: !sourcePets.some(pet => pet.selected) });
-  }
-
-  handleLickyMatChange(e) {
-    this.setState({ isLickyMat: e.target.checked });
-  }
-
-  async handleSubmit(event) {
-    console.log('New submission. Amount: ', this.state.value, ', Pets: ', this.state.pets);
+  async handleSubmit() {
+    console.log('New submission. Time: ' + this.state.time + ', Pets: ', this.state.pets);
     this.setState({ loading: true });
-    //event.preventDefault();
+    
     const selectedPets = this.state.pets.filter(pet => pet.selected);
     console.log("SelectedPets: ", selectedPets);
     for (let selectedPet in selectedPets) {
@@ -90,7 +72,7 @@ export class AddEntryV2 extends Component {
     }
     console.log("Data submission done...calling parent");
     this.setState({ loading: false });
-    this.props.dataSubmitted();
+    if(this.props.dataSubmitted) this.props.dataSubmitted();
   }
 
   handleTimeChange(event) {
@@ -98,87 +80,48 @@ export class AddEntryV2 extends Component {
     this.setState({ time: dayjs(dayjs().format("YYYY-MM-DD") + " " + event.target.value, "YYYY-MM-DD HH:mm") });
   }
 
-  handleRadioChange(event) {
-    console.log("Radio changed: ", event, "target value: ", event.target.value, "state: ", this.state);
-    if (event.target.value != null) {
-      console.log("DEBUG searchvalue", event.target.value, "preset: ", AddEntryV2.presetOptions);
-      const foundEntry = AddEntryV2.presetOptions.find(option => option.value === event.target.value);
-      if (foundEntry) {
-        let presetValue = this.state.value;
-        console.log("DEBUG", foundEntry);
-        if (foundEntry.presetFoodValue) {
-          presetValue = foundEntry.presetFoodValue;
-        }
-        this.setState({ preset: event.target.value, value: presetValue });
-      }
-    }
+  handlePetChange(name, value, lickyMat){
+    console.log("PetEntry " + name + " Changed: ", value, lickyMat);
+
+    let sourcePets = this.state.pets;
+    sourcePets.find(pet => pet.name === name).food = value;
+    sourcePets.find(pet => pet.name === name).lickyMat = lickyMat;
+    this.setState({pets: sourcePets});
   }
 
   render() {
     console.log("Pets: ", this.state.pets)
     return (
       <>
-        <Row gutter={[16,  24]} style={{marginBottom: "16px"}}>
+        <Row>
           <Col flex={"auto"}>
             <Input type="time"
-                  value={this.state.time.format("HH:mm")}
-                  onChange={(e) => this.handleTimeChange(e)}
-                  prefix={<ClockCircleOutlined />}
-                  addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
+                   value={this.state.time.format("HH:mm")}
+                   onChange={(e) => this.handleTimeChange(e)}
+                   prefix={<ClockCircleOutlined />}
+                   addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
           </Col>
         </Row>
-        <Row gutter={[16,  24]} style={{marginBottom: "16px"}}>
+        <Row gutter={24} style={{marginBottom: "16px"}}>
           {this.state.pets.map(pet => 
-            <Col>
-              <PetEntry name={pet.name}/>
+            <Col span={12}>
+              <PetEntry name={pet.name} onChange={this.handlePetChange}/>
             </Col>
           )}
         </Row>
         <Row gutter={[16, 24]}>
           <Col flex={"auto"}>
-            <Button type="primary" htmlType="submit" loading={this.state.loading} disabled={this.state.submitDisabled || this.state.loading} style={{width: "100%"}}>
+            <Button type="primary" 
+                    htmlType="submit" 
+                    loading={this.state.loading} 
+                    onClick={this.handleSubmit}
+                    disabled={this.state.submitDisabled || this.state.loading} 
+                    style={{width: "100%"}}>
               Hinzufügen
             </Button>
           </Col>
         </Row>
       </>
-      // <div style={{ width: "60%", margin: "0 auto" }} id="entrydiv">
-      //   <Form onFinish={this.handleSubmit}
-      //         labelCol={{ span: 8 }}
-      //     wrapperCol={{ span: 16 }}
-      //     id="entryform">
-      //     <Form.Item>
-      //       <Input.Group compact>
-      //         <Input type="time" style={{ width: "calc(100%-200px)" }}
-      //           value={this.state.time.format("HH:mm")}
-      //           onChange={(e) => this.handleTimeChange(e)}
-      //           prefix={<ClockCircleOutlined />}
-      //           addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
-      //       </Input.Group>
-      //     </Form.Item>
-      //     <Form.Item>
-      //       <InputNumber addonAfter="g" value={this.state.value} defaultValue={this.state.value} min={1} max={400} onChange={this.handleAmountChange} />
-      //     </Form.Item>
-      //     <Form.Item>
-      //       <Radio.Group
-      //         options={AddEntryV2.presetOptions}
-      //         onChange={this.handleRadioChange}
-      //         value={this.state.preset}
-      //         optionType="button"
-      //       />
-      //     </Form.Item>
-      //     <Form.Item>
-      //       <Checkbox checked={this.state.isLickyMat} onChange={(e) => this.handleLickyMatChange(e)}>
-      //         LickyMat
-      //       </Checkbox>
-      //     </Form.Item>
-      //     <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-      //       <Button type="primary" htmlType="submit" loading={this.state.loading} disabled={this.state.submitDisabled || this.state.loading}>
-      //         Hinzufügen
-      //       </Button>
-      //     </Form.Item>
-      //   </Form>
-      // </div>
       );
   }
 }
