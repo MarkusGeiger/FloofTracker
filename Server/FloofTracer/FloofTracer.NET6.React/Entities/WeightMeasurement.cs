@@ -7,5 +7,9 @@
     public int Value { get; set; }
     public int PetId { get; set; }
     public string Unit { get; set; } = "g";
+    public override string ToString()
+    {
+      return $"{Id}: [{Timestamp}] pet:{PetId}, {Value} {Unit}";
+    }
   }
 }

@@ -86,7 +86,7 @@ export class AddEntryV2 extends Component {
     let sourcePets = this.state.pets;
     sourcePets.find(pet => pet.name === name).food = value;
     sourcePets.find(pet => pet.name === name).lickyMat = lickyMat;
-    this.setState({pets: sourcePets});
+    this.setState({pets: sourcePets, submitDisabled: (value === 0 || value === "")});
   }
 
   render() {
@@ -94,13 +94,11 @@ export class AddEntryV2 extends Component {
     return (
       <>
         <Row>
-          <Col flex={"auto"}>
-            <Input type="time"
-                   value={this.state.time.format("HH:mm")}
-                   onChange={(e) => this.handleTimeChange(e)}
-                   prefix={<ClockCircleOutlined />}
-                   addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
-          </Col>
+          <Input type="time"
+                  value={this.state.time.format("HH:mm")}
+                  onChange={(e) => this.handleTimeChange(e)}
+                  prefix={<ClockCircleOutlined />}
+                  addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
         </Row>
         <Row gutter={24} style={{marginBottom: "16px"}}>
           {this.state.pets.map(pet => 
@@ -110,16 +108,14 @@ export class AddEntryV2 extends Component {
           )}
         </Row>
         <Row gutter={[16, 24]}>
-          <Col flex={"auto"}>
-            <Button type="primary" 
-                    htmlType="submit" 
-                    loading={this.state.loading} 
-                    onClick={this.handleSubmit}
-                    disabled={this.state.submitDisabled || this.state.loading} 
-                    style={{width: "100%"}}>
-              Hinzufügen
-            </Button>
-          </Col>
+          <Button type="primary" 
+                  htmlType="submit" 
+                  loading={this.state.loading} 
+                  onClick={this.handleSubmit}
+                  disabled={this.state.submitDisabled || this.state.loading} 
+                  style={{width: "100%"}}>
+            Hinzufügen
+          </Button>
         </Row>
       </>
       );

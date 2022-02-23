@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { Alert, Badge, Button, List, Modal } from "antd";
-import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { Alert, Badge, Button, Col, List, Popconfirm, Row } from "antd";
+import { DeleteOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
-const { confirm } = Modal;
 const antIcon = <LoadingOutlined style={{ fontSize: 24 }} spin />;
 
 var utc = require('dayjs/plugin/utc')
@@ -21,8 +20,7 @@ export class FoodList extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { loading: true, currentDay: props.date, foodList: [], deleteModalVisible: false, deleteModalLoading: false };
-    this.deleteButtonClick = this.deleteButtonClick.bind(this);
+    this.state = { loading: true, currentDay: props.date, foodList: [] };
     this.fetchFoodListRequest = this.fetchFoodListRequest.bind(this);
   }
 
@@ -33,7 +31,7 @@ export class FoodList extends Component {
 
   async fetchFoodListRequest() {
     const newDate = this.state.currentDay;
-    console.log("fetch data for food list component");
+    console.log("fetch data for food list component", newDate.toISOString());
     return fetch(
       `api/Food?date=${newDate.toISOString()}&petId=${this.props.pet.id}`,
       {
@@ -70,24 +68,6 @@ export class FoodList extends Component {
     return fetch('api/Food/' + feedingData.id, { method: "DELETE" }).then(() => this.fetchFoodListRequest());
   }
 
-  deleteButtonClick(feedingData) {
-    console.log("Event data to be deleted: ", feedingData)
-
-    confirm({
-      title: 'Fütterung löschen?',
-      icon: <ExclamationCircleOutlined />,
-      visible: this.state.visible,
-      content: "Fütterung für " + this.props.pet.name + " um " + dayjs.utc(feedingData.timestamp).tz("Europe/Berlin").format("HH:mm") + " mit " + feedingData.value + feedingData.unit,
-      okText: 'Ja',
-      okType: 'danger',
-      cancelText: 'Nein',
-      onOk: () => {
-        this.modalDeleteConfirmedMethod(feedingData)
-      },
-      onCancel() { },
-    });
-  }
-
   render() {
     const currentSum = this.state.foodList.reduce((pv, cv) => ({ value: pv.value + cv.value }), ({ value: 0 }));
     const targetWeight = this.props.pet.weight * 0.05;
@@ -102,7 +82,7 @@ export class FoodList extends Component {
     else if (currentSum.value > targetWeight) {
       alertType = "error";
     }
-    //console.log("render foodlist", this.state.foodList, "currentWeight", currentSum, "Alerttype: ", alertType, "IsToday(" + dayjs(this.state.currentDay).format("YYYY-MM-DD") + "): ", dayjs(this.state.currentDay).isToday());
+    
     return (
       <Spin spinning={this.state.loading} indicator={antIcon}>
         <List size="small"
@@ -110,8 +90,24 @@ export class FoodList extends Component {
           bordered
           dataSource={this.state.foodList.sort((a, b) => (dayjs(a.timestamp).isAfter(dayjs(b.timestamp)) ? 1 : -1))}
           renderItem={(item) => (
-            <List.Item actions={dayjs(item.timestamp).isToday() ? [<Button size="small" shape="circle" icon={<DeleteOutlined />} danger onClick={() => this.deleteButtonClick(item)} />] : []}>
-              <strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong> {item.value}{item.unit} {item.lickyMat ? <Badge count={"LM"} style={{ margin: "0 10px" }} /> : ""}
+            <List.Item>
+              <Row style={{width: "100%"}} justify="space-between" align="middle">
+                <Col span={6}><strong>{dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm")}</strong></Col>
+                <Col span={4}>{item.value}{item.unit}</Col>
+                <Col span={5}>{item.lickyMat ? <Badge count={"LM"}/> : ""}</Col>
+                
+                {dayjs(item.timestamp).isToday() ? (
+                  <Col span={4}>
+                    <Popconfirm title={"Fütterung für " + this.props.pet.name + " um " + dayjs.utc(item.timestamp).tz("Europe/Berlin").format("HH:mm") + " mit " + item.value + item.unit + " löschen?"}
+                                onConfirm={() => this.modalDeleteConfirmedMethod(item)}
+                                okText="Ja"
+                                cancelText="Nein"
+                              >
+                      <Button size="small" shape="circle" icon={<DeleteOutlined />} danger />
+                    </Popconfirm>
+                  </Col>) : ""}
+               
+              </Row>
             </List.Item>)} />
         <Alert
           type={alertType}

@@ -31,8 +31,13 @@ export const PetEntry = ({name, onChange}) => {
     const handleAmountChange = event => {
       let amount = event.target.value;
       console.log("Amount changed: ", amount);
-      amount = Math.min(400, amount);
-      amount = Math.max(1, amount);
+      if(!isNaN(parseFloat(amount)) && !isNaN(amount - 0)) {
+        amount = Math.min(400, amount);
+        amount = Math.max(0, amount);
+      }
+      else {
+        amount = "";
+      }
       const foundEntry = presetOptions.find(option => option.presetFoodValue === amount);
       console.log("AmountChange FoundEntry: ", foundEntry);
       setValue(amount);

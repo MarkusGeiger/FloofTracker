@@ -1,12 +1,6 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using FloofTracer.NET6.React;
 using FloofTracer.NET6.React.Entities;
 
 namespace FloofTracer.NET6.React.Controllers
@@ -16,16 +10,19 @@ namespace FloofTracer.NET6.React.Controllers
   public class FoodController : ControllerBase
   {
     private readonly ApplicationDBContext _context;
+    private readonly ILogger<FoodController> _logger;
 
-    public FoodController(ApplicationDBContext context)
+    public FoodController(ApplicationDBContext context, ILogger<FoodController> logger)
     {
       _context = context;
+      _logger = logger;
     }
 
     // GET: api/Food
     [HttpGet]
     public async Task<ActionResult<IEnumerable<FoodMeasurement>>> GetFoods([FromQuery] DateTime? date = null, [FromQuery] int? petId = null)
     {
+      _logger.LogInformation($"Get Foods on '{date}' for '{petId}'");
       if (date.HasValue && petId.HasValue)
       {
         return await _context.Foods.Where(foodMeasurement => foodMeasurement.Timestamp.Date == date.Value.Date && foodMeasurement.PetId == petId).ToListAsync();
@@ -37,7 +34,7 @@ namespace FloofTracer.NET6.React.Controllers
     public async Task<ActionResult<IEnumerable<GroupedFoodItem>>> GetFoodsDaily([FromQuery] int petId)
     {
       var foodList = await _context.Foods.Where(foodMeasurement => foodMeasurement.PetId == petId).ToListAsync();
-      return Ok(foodList.GroupBy(food => food.Timestamp.Date).Select(groupItem => new GroupedFoodItem(groupItem.Key, groupItem.ToList(), groupItem.Sum(food => food.Value), petId)));
+      return Ok(foodList.GroupBy(food => food.Timestamp.Date).OrderBy(groupItem => groupItem.Key).Select(groupItem => new GroupedFoodItem(groupItem.Key, groupItem.ToList(), groupItem.Sum(food => food.Value), petId)));
     }
 
     // GET: api/Food/5
@@ -104,9 +101,11 @@ namespace FloofTracer.NET6.React.Controllers
       var foodMeasurement = await _context.Foods.FindAsync(id);
       if (foodMeasurement == null)
       {
+        _logger.LogInformation($"Delete Food Entry '{id}': Not Found");
         return NotFound();
       }
 
+      _logger.LogInformation($"Delete Food Entry '{id}': {foodMeasurement}");
       _context.Foods.Remove(foodMeasurement);
       await _context.SaveChangesAsync();
 

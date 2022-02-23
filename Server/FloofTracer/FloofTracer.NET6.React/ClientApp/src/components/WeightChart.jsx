@@ -32,7 +32,7 @@ export const WeightChart = ({ data /* see data tab */ }) => (
         }}
         axisBottom={{
             format: '%b %d',
-            tickValues: 'every 3 days',
+            tickValues: 'every 7 days',
             legend: '',
             legendOffset: -12,
         }}
