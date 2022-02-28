@@ -17,7 +17,6 @@ export const PetEntry = ({name, onChange}) => {
 
     useEffect(()=>{
       if(onChange) onChange(name, value, isLickyMat);
-      console.log("useEffect");
     }, [name, value, isLickyMat, onChange]);
 
     const handleRadioChange = event => {

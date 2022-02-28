@@ -90,7 +90,6 @@ export class AddEntryV2 extends Component {
   }
 
   render() {
-    console.log("Pets: ", this.state.pets)
     return (
       <>
         <Row>
@@ -102,7 +101,7 @@ export class AddEntryV2 extends Component {
         </Row>
         <Row gutter={24} style={{marginBottom: "16px"}}>
           {this.state.pets.map(pet => 
-            <Col span={12}>
+            <Col key={pet.id} span={12}>
               <PetEntry name={pet.name} onChange={this.handlePetChange}/>
             </Col>
           )}
