@@ -12,6 +12,7 @@ import { StatisticsCharts } from './StatisticsCharts';
 import UserManagement from './UserManagement';
 import FoodTypeList from './FoodTypeList';
 import { AddEntryV2 } from './AddEntryV2';
+import { AddEntryV3 } from './AddEntryV3';
 
 const { TabPane } = Tabs;
 
@@ -108,6 +109,9 @@ export class Home extends Component {
             <Space direction="vertical" style={{ width: "100%" }} id="homespace">
               <Card size="small" title="F&uuml;tterung" id="entrycard">
                 <AddEntryV2 dataSubmitted={()=>this.handleUpdate()} />
+              </Card>
+              <Card size="small" id="entrycardV3">
+                <AddEntryV3 dataSubmitted={()=>this.handleUpdate()} />
               </Card>
               <Card id="foodlistcard"
                     size="small"

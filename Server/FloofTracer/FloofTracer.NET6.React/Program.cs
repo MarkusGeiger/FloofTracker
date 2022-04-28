@@ -7,6 +7,7 @@ using Microsoft.IdentityModel.Tokens;
 using NLog;
 using NLog.Web;
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using System.Security.Claims;
 
 var logger = LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
@@ -54,7 +55,7 @@ try
   var envVar = Environment.GetEnvironmentVariable("DATABASE_URL");
   if (string.IsNullOrWhiteSpace(envVar))
   {
-    if (builder.Environment.IsDevelopment())
+    if (builder.Environment.IsDevelopment() && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
     {
       var cmd = new Process();
       cmd.StartInfo.FileName = "cmd.exe";
@@ -86,7 +87,7 @@ try
   "; Username=" + username +
   "; Password=" + password +
   "; Port=" + uri.Port +
-  "; SSL Mode=Require; Trust Server Certificate=true;";
+  "; SSL Mode=Prefer; Trust Server Certificate=true;";
   logger.Info(connectionString);
   builder.Services.AddDbContext<ApplicationDBContext>(options =>
   {
