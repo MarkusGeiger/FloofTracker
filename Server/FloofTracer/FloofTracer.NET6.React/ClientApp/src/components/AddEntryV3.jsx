@@ -5,21 +5,35 @@ import {
   Col,
   Input,
   Statistic,
+  Popconfirm,
+  Modal,
 } from 'antd';
 import dayjs from 'dayjs';
 import { ClockCircleOutlined } from '@ant-design/icons';
-import { PetEntryV2 } from './PetEntryV2';
+import { PetEntryV2, presetOptions } from './PetEntryV2';
+import { FoodSetting } from './FoodSetting';
 
 export class AddEntryV3 extends Component {
   static displayName = AddEntryV3.name;
 
   constructor(props) {
     super(props);
-    this.state = { pets: [], submitDisabled: false, time: dayjs(), loading: false, currentTime: dayjs()};
+    this.state = { 
+      pets: [], 
+      submitDisabled: false,
+      isTimeModalVisible: false,
+      isFoodModalVisible: false,
+      time: dayjs(), 
+      loading: false, 
+      currentTime: dayjs()};
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleTimeChange = this.handleTimeChange.bind(this);
     this.handlePetChange = this.handlePetChange.bind(this);
+    this.handleTimeCancel = this.handleTimeCancel.bind(this);
+    this.showTimeModal = this.showTimeModal.bind(this);
+    this.handleFoodCancel = this.handleFoodCancel.bind(this);
+    this.showFoodModal = this.showFoodModal.bind(this);
   }
 
   componentDidMount() {
@@ -90,6 +104,23 @@ export class AddEntryV3 extends Component {
     this.setState({pets: sourcePets, submitDisabled: (value === 0 || value === "")});
   }
 
+  showTimeModal(){
+    this.setState({isTimeModalVisible: true});
+  };
+
+  handleTimeCancel(){
+    this.setState({isTimeModalVisible: false});
+  };
+
+  showFoodModal(){
+    this.setState({isFoodModalVisible: true});
+  }
+
+  handleFoodCancel(){
+    this.setState({isFoodModalVisible: false});
+  }
+
+
   render() {
     return (
       <>
@@ -102,20 +133,55 @@ export class AddEntryV3 extends Component {
         </Row> */}
         <Row gutter={24} style={{marginBottom: "16px"}}>
           <Col span={4}>
-            <Statistic title="Uhrzeit" value={this.state.time.format("HH:mm")}/>
+              <div style={{background: "darkcyan", height: "100%", cursor: "pointer"}} 
+                   onClick={this.showTimeModal}>
+                <Statistic title="Uhrzeit" 
+                           value={this.state.time.format("HH:mm")}/>
+              </div>
+              <Modal title="Uhrzeit anpassen" 
+                     visible={this.state.isTimeModalVisible}
+                     onCancel={this.handleTimeCancel}
+                     footer={[]}>
+                <Input type="time"
+                  value={this.state.time.format("HH:mm")}
+                  onChange={(e) => this.handleTimeChange(e)}
+                  prefix={<ClockCircleOutlined />}
+                  addonAfter={<Button onClick={() => this.setState({ time: dayjs() })}>Jetzt</Button>} />
+              </Modal>
           </Col>
           {this.state.pets.map(pet => 
             <Col key={pet.id} span={10}>
-              <PetEntryV2 name={pet.name} onChange={this.handlePetChange}/>
+              <div style={{background: "darkcyan", height: "100%", cursor: "pointer"}} 
+                    onClick={this.showFoodModal}>
+                <Statistic title={pet.name} 
+                            value={pet.food}/>
+              
+              </div> 
             </Col>
           )}
+          <Col span={4}/>
+          <Col span={20}>
+            <FoodSetting preset={presetOptions}/>
+          </Col>
+          <Modal title="Fütterung anpassen" 
+                 visible={this.state.isFoodModalVisible}
+                 onCancel={this.handleFoodCancel}
+                 footer={[]}>
+            <Row gutter={24} style={{marginBottom: "16px"}}>
+              {this.state.pets.map(pet => 
+                <Col key={pet.id} span={10}>
+                  <PetEntryV2 name={pet.name} onChange={this.handlePetChange}/>
+                </Col>
+              )}
+            </Row>
+          </Modal>
         </Row>
         <Row gutter={[16, 24]}>
-          <Button type="primary" 
-                  htmlType="submit" 
-                  loading={this.state.loading} 
+          <Button type="primary"
+                  htmlType="submit"
+                  loading={this.state.loading}
                   onClick={this.handleSubmit}
-                  disabled={this.state.submitDisabled || this.state.loading} 
+                  disabled={this.state.submitDisabled || this.state.loading}
                   style={{width: "100%"}}>
             Hinzufügen
           </Button>

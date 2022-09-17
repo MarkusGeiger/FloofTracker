@@ -2,18 +2,18 @@ import { Col, Divider, Input, Radio, Row, Typography } from "antd";
 import Checkbox from "antd/lib/checkbox/Checkbox";
 import { useEffect, useState } from "react";
 
+export const presetOptions = [
+  // { label: "Custom", value: 0 },
+  { label: "EL", value: 1, presetFoodValue: 15 },
+  { label: "S", value: 2, presetFoodValue: 40 },
+  { label: "M", value: 3, presetFoodValue: 50 },
+  { label: "L", value: 4, presetFoodValue: 75 }
+];
+
 export const PetEntryV2 = ({name, onChange}) => {
     const [value, setValue] = useState(40);
     const [preset, setPreset] = useState(2);
     const [isLickyMat, setIsLickyMat] = useState(false);
-
-    const presetOptions = [
-        // { label: "Custom", value: 0 },
-        { label: "EL", value: 1, presetFoodValue: 15 },
-        { label: "S", value: 2, presetFoodValue: 40 },
-        { label: "M", value: 3, presetFoodValue: 50 },
-        { label: "L", value: 4, presetFoodValue: 75 }
-      ];
 
     useEffect(()=>{
       if(onChange) onChange(name, value, isLickyMat);
