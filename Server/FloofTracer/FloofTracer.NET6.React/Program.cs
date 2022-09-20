@@ -85,8 +85,8 @@ try
   "; Database=" + uri.AbsolutePath[1..] +
   "; Username=" + username +
   "; Password=" + password +
-  "; Port=" + uri.Port +
-  "; SSL Mode=Require; Trust Server Certificate=true;";
+  "; Port=" + uri.Port + ";";
+  //"; SSL Mode=Require; Trust Server Certificate=true;";
   logger.Info(connectionString);
   builder.Services.AddDbContext<ApplicationDBContext>(options =>
   {
